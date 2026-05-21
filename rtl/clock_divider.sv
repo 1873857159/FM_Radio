@@ -14,20 +14,21 @@ module clock_divider
      if (reset)
        begin
           counter <= '0;
-          en   <= 1'b0;
+          en      <= 1'b0;
        end
      else
-       if (en_i)
-         if (counter == M - 1)
-           begin
-              counter <= '0;
-              en   <= 1'b1;
-           end
-         else
-           begin
-              counter <= counter + 1;
-              en      <= 1'b0;
-           end
+       begin
+          en <= 1'b0;
 
-   always_comb en_o = en_i & en;
+          if (en_i)
+            if (counter == M - 1)
+              begin
+                 counter <= '0;
+                 en      <= 1'b1;
+              end
+            else
+              counter <= counter + 1'b1;
+       end
+
+   assign en_o = en;
 endmodule

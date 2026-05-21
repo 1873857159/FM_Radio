@@ -1,0 +1,12 @@
+input=/home/huoshao/FM_Radio/rtl/audio_clip_acceptance.wav
+sample_rate=16000
+rom_width_bits=8
+playback_sample_rate=32000
+interpolation=sample_repeat_x2
+original_samples=24684
+trim_start=0
+trim_end=23388
+trimmed_samples=23388
+duration_s=1.461750
+peak=30056
+scale=0.00422545

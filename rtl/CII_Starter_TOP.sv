@@ -2,6 +2,7 @@
  *
  * KEY[0]           external reset
  * SW[9]            apply 1 kHz test tone to DAC
+ * SW[8]            route logarithmic FM code to the audio output path
  * SW[5:3, 1:0]     select fixed frequency defined in 'freq_select'
  * EXT_CLOCK, SW[2] differential input for antenna signal
  */
@@ -92,11 +93,11 @@ module CII_Starter_TOP
    output wire [3:0]  VGA_B,       // VGA Blue[3:0]
 
    /* Audio CODEC */
-   inout  wire        AUD_ADCLRCK, // Audio CODEC ADC LR Clock
+   output wire        AUD_ADCLRCK, // Audio CODEC ADC LR Clock
    input  wire        AUD_ADCDAT,  // Audio CODEC ADC Data
-   inout  wire        AUD_DACLRCK, // Audio CODEC DAC LR Clock
+   output wire        AUD_DACLRCK, // Audio CODEC DAC LR Clock
    output wire        AUD_DACDAT,  // Audio CODEC DAC Data
-   inout  wire        AUD_BCLK,    // Audio CODEC Bit-Stream Clock
+   output wire        AUD_BCLK,    // Audio CODEC Bit-Stream Clock
    output wire        AUD_XCK,     // Audio CODEC Chip Clock
 
    /* GPIO */
@@ -113,19 +114,72 @@ module CII_Starter_TOP
    wire                     en32k;                  //  32 kHz clock enable
    wire [width_dds - 1 : 0] K;                      // DDS phase reload constant
    wire [15:0]              audio_dat;              // audio data
+   wire [15:0]              audio_dat_log;          // sign-extended logarithmic audio code
    wire [15:0]              radio_core_demodulated; // radio_core demodulated audio data
+   wire [7:0]               radio_core_log_code;    // radio_core logarithmic audio data
+   wire                     radio_core_log_valid;   // radio_core logarithmic code valid
    wire [15:0]              test_tone_data;         // 1 kHz test tone audio data
    wire                     i2c_scl, i2c_sda;       // I2C interface
 
    /* open-drain outputs for I2C */
    assign I2C_SCLK = (i2c_scl) ? 1'bz : 1'b0;
    assign I2C_SDAT = (i2c_sda) ? 1'bz : 1'b0;
+   assign DRAM_DQ   = {16{1'bz}};
+   assign FL_DQ     = {8{1'bz}};
+   assign SRAM_DQ   = {16{1'bz}};
+   assign SD_DAT    = 1'bz;
+   assign SD_DAT3   = 1'bz;
+   assign SD_CMD    = 1'bz;
+   assign GPIO_0    = {36{1'bz}};
 
    assign reset_in = ~KEY[0];
+   assign audio_dat_log = {{8{radio_core_log_code[7]}}, radio_core_log_code};
+   assign UART_TXD  = 1'b1;
 
-   assign audio_dat = (SW[9]) ? test_tone_data : radio_core_demodulated;
+   assign DRAM_ADDR = '0;
+   assign DRAM_LDQM = 1'b1;
+   assign DRAM_UDQM = 1'b1;
+   assign DRAM_WE_N = 1'b1;
+   assign DRAM_CAS_N= 1'b1;
+   assign DRAM_RAS_N= 1'b1;
+   assign DRAM_CS_N = 1'b1;
+   assign DRAM_BA_0 = 1'b0;
+   assign DRAM_BA_1 = 1'b0;
+   assign DRAM_CLK  = 1'b0;
+   assign DRAM_CKE  = 1'b0;
+
+   assign FL_ADDR   = '0;
+   assign FL_WE_N   = 1'b1;
+   assign FL_RST_N  = 1'b1;
+   assign FL_OE_N   = 1'b1;
+   assign FL_CE_N   = 1'b1;
+
+   assign SRAM_ADDR = '0;
+   assign SRAM_UB_N = 1'b1;
+   assign SRAM_LB_N = 1'b1;
+   assign SRAM_WE_N = 1'b1;
+   assign SRAM_CE_N = 1'b1;
+   assign SRAM_OE_N = 1'b1;
+
+   assign SD_CLK    = 1'b0;
+   assign TDO       = 1'b0;
+   assign VGA_HS    = 1'b0;
+   assign VGA_VS    = 1'b0;
+   assign VGA_R     = '0;
+   assign VGA_G     = '0;
+   assign VGA_B     = '0;
+
+   /* Logarithmic mode forwards the 8-bit code as a sign-extended sample.
+    * This is intended for observing the encoder output on the existing
+    * audio path, not for high-quality playback.
+    */
+   assign audio_dat = (SW[9]) ? test_tone_data
+                    : (SW[8]) ? audio_dat_log
+                    : radio_core_demodulated;
 
    assign AUD_ADCLRCK = 1'b0;
+   assign LEDG = radio_core_log_code;
+   assign LEDR = {SW[9], SW[8], radio_core_log_valid, radio_core_demodulated[15:9]};
 
    pll inst_pll
      (.inclk0(CLOCK_24[0]),
@@ -140,12 +194,12 @@ module CII_Starter_TOP
       .en960k,
       .en32k);
 
-   radio_core
+   radio_core_log
      #(.width_dds   (width_dds),
        .width_cordic(17),
        .R1          (250),
        .R2          (30))
-   inst_radio_core
+   inst_radio_core_log
      (.reset        (reset_sync),
       .clk          (clk240m),
       .en48m,
@@ -153,7 +207,9 @@ module CII_Starter_TOP
       .en32k,
       .adc          (EXT_CLOCK),
       .K,
-      .demodulated  (radio_core_demodulated));
+      .demodulated  (radio_core_demodulated),
+      .log_code     (radio_core_log_code),
+      .log_valid    (radio_core_log_valid));
 
    freq_select
      #(.width_dds(width_dds))

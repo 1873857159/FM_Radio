@@ -1,0 +1,5 @@
+-full64
+-sverilog
+-timescale=1ns/1ps
+../../rtl/log_encoder.sv
+tb_log_encoder.sv

@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+
+# Simulation/build outputs
+outputs/
+work/
+transcript
+*.wlf
+*.vcd
+*.fst
+*.vstf
+
+# Local packaging and office documents
+code.zip
+*.docx
+*.pdf

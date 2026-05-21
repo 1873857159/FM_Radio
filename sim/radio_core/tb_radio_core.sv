@@ -27,7 +27,15 @@ module tb_radio_core;
    bit         [width_dds - 1:0]    K;            // phase constant for DDS
    wire signed [15:0]               demodulated;  // demodulated signal
 
-   radio_core dut(.*);
+   radio_core dut(
+      .reset      (reset),
+      .clk        (clk),
+      .en48m      (en1),
+      .en960k     (en_b),
+      .en32k      (en_a),
+      .adc        (adc),
+      .K          (K),
+      .demodulated(demodulated));
 
    always #(tcm/2)  adc = ~adc;
    always #(tclk/2) clk = ~clk;
@@ -36,7 +44,12 @@ module tb_radio_core;
      begin:clk_gen1
         int counter;
 
-        if (counter == R1a - 1)
+        if (reset)
+          begin
+             counter <= 0;
+             en1     <= 1'b0;
+          end
+        else if (counter == R1a - 1)
           begin
              counter <= 0;
              en1     <= 1'b1;
@@ -52,7 +65,12 @@ module tb_radio_core;
      begin:clk_gen2
         int counter;
 
-        if (counter == R1a * R1b - 1)
+        if (reset)
+          begin
+             counter <= 0;
+             en_b    <= 1'b0;
+          end
+        else if (counter == R1a * R1b - 1)
           begin
              counter <= 0;
              en_b    <= 1'b1;
@@ -68,7 +86,12 @@ module tb_radio_core;
      begin:clk_gen3
         int counter;
 
-        if (counter == R1 * R2 - 1)
+        if (reset)
+          begin
+             counter <= 0;
+             en_a    <= 1'b0;
+          end
+        else if (counter == R1 * R2 - 1)
           begin
              counter <= 0;
              en_a    <= 1'b1;

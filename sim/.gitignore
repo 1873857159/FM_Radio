@@ -1,0 +1,10 @@
+**/modelsim.ini
+**/transcript
+**/*.log
+**/*.mpf
+**/*.mti
+**/*.vcd
+**/*.wlf
+**/outputs/
+**/outputs_work*/
+**/work*/

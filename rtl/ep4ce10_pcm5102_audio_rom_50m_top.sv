@@ -1,0 +1,46 @@
+/* EP4CE10F17C8 + PCM5102 top for common 50 MHz core boards
+ *
+ * Inputs:
+ * - clk50m: on-board 50 MHz oscillator
+ * - clk12m288: external 12.288 MHz audio oscillator
+ * - reset_n: active-low reset
+ *
+ * Audio path:
+ *   audio_rom_source -> fm_modulator -> radio_core -> I2S -> PCM5102
+ */
+
+module ep4ce10_pcm5102_audio_rom_50m_top
+  (input  wire        clk50m,       // on-board 50 MHz clock
+   input  wire        clk12m288,    // external audio clock
+   input  wire        reset_n,      // active-low reset
+   output wire        pcm_sck,      // PCM5102 system clock
+   output wire        pcm_bck,      // PCM5102 bit clock
+   output wire        pcm_lrck,     // PCM5102 sample clock
+   output wire        pcm_din,      // PCM5102 serial data
+   output wire        fm_debug,     // on-chip FM debug waveform
+   output wire [3:0]  led);         // debug LEDs
+
+   wire pll_locked;
+   wire clk240m;
+   wire clk120m;
+
+   pll_50m_to_240m inst_pll_50m_to_240m
+     (.inclk0(clk50m),
+      .c0    (clk240m),
+      .c1    (clk120m),
+      .locked(pll_locked));
+
+   ep4ce10_pcm5102_audio_rom_top
+     #(.audio_clk_div(3750))
+   inst_pcm5102_top
+     (.clk240m  (clk240m),
+      .clk_audio_src(clk120m),
+      .clk12m288(clk12m288),
+      .reset_n  (reset_n & pll_locked),
+      .pcm_sck,
+      .pcm_bck,
+      .pcm_lrck,
+      .pcm_din,
+      .fm_debug,
+      .led);
+endmodule

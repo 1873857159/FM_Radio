@@ -1,0 +1,20 @@
+# EP4CE10F17C8 core-board minimum LED diagnostic pin template
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE10F17C8
+set_global_assignment -name TOP_LEVEL_ENTITY ep4ce10_diag_led_50m_top
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name SDC_FILE ep4ce10_diag_led_50m_top.sdc
+
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/ep4ce10_diag_led_50m_top.sv
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+
+# Recommended pin map for the EP4CE10F17C8 core-board pin sheet:
+set_location_assignment PIN_E1  -to clk50m
+set_location_assignment PIN_M1  -to reset_n
+set_location_assignment PIN_D12 -to fm_debug
+set_location_assignment PIN_D11 -to led[0]
+set_location_assignment PIN_C11 -to led[1]
+set_location_assignment PIN_E10 -to led[2]
+set_location_assignment PIN_F9  -to led[3]

@@ -1,0 +1,49 @@
+# EP4CE10F17C8 50 MHz core-board + PCM5102 pin template
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE10F17C8
+set_global_assignment -name TOP_LEVEL_ENTITY ep4ce10_pcm5102_50m_top
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name SDC_FILE ep4ce10_pcm5102_50m_top.sdc
+
+set_global_assignment -name SEARCH_PATH ../../CORDIC/rtl
+
+set_global_assignment -name VERILOG_FILE ../../rtl/pll_50m_to_240m.v
+set_global_assignment -name SYSTEMVERILOG_FILE ../../CORDIC/rtl/cordic.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/dds.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/differentiator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/cic_3_filter.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/synchronizer.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/clock_divider.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/cru.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/iq_modulator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/radio_core.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/fm_modulator.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/pwm_audio.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/tone_source_1k.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/fm_loopback_ep4ce6_core.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/audio_sample_bridge.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/i2s_tx.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/ep4ce6_pcm5102_top.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/ep4ce10_pcm5102_top.sv
+set_global_assignment -name SYSTEMVERILOG_FILE ../../rtl/ep4ce10_pcm5102_50m_top.sv
+
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+
+# Recommended pin map for the EP4CE10F17C8 core-board pin sheet:
+# - clk50m/reset_n use the on-board system clock and reset pins
+# - led[3:0] use the on-board LEDs
+# - fm_debug uses the on-board buzzer pin as a convenient probe point
+# - PCM5102 and the external 12.288 MHz oscillator share the camera header pins
+set_location_assignment PIN_E1  -to clk50m
+set_location_assignment PIN_R13 -to clk12m288
+set_location_assignment PIN_M1  -to reset_n
+set_location_assignment PIN_L9  -to pcm_sck
+set_location_assignment PIN_R12 -to pcm_bck
+set_location_assignment PIN_N9  -to pcm_lrck
+set_location_assignment PIN_L10 -to pcm_din
+set_location_assignment PIN_D12 -to fm_debug
+set_location_assignment PIN_D11 -to led[0]
+set_location_assignment PIN_C11 -to led[1]
+set_location_assignment PIN_E10 -to led[2]
+set_location_assignment PIN_F9  -to led[3]
